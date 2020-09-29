@@ -31,15 +31,15 @@ public class Rank implements Comparable<Rank> {
 	/**
 	 * Oveririding compareTo method to implement the logic
 	 *
-	 * @param other Rank object of another participant to be compared with
+	 * @param rank1 Rank object of another participant to be compared with
 	 * @return int Value signifying greater than, less than, or equal to ranking
 	 *         based on time
 	 */
 	@Override
-	public int compareTo(Rank other) {
-		if (this.getTime() == other.getTime())
+	public int compareTo(Rank rank1) {
+		if (this.getTime() == rank1.getTime())
 			return 0;
-		else if (this.getTime() > other.getTime())
+		else if (this.getTime() > rank1.getTime())
 			return 1;
 		else
 			return -1;

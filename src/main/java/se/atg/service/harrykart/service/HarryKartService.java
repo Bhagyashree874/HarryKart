@@ -20,7 +20,7 @@ import se.atg.service.harrykart.utils.HarrykartUtils;
 @Service
 public class HarryKartService {
 
-	private static final double TRACK_LENGTH = 1000.0;
+	private static final double DISTANCE = 1000.0;
 
 	private XmlMapper xmlMapper;
 	HarryKart race;
@@ -35,33 +35,32 @@ public class HarryKartService {
 		this.race = race;
 	}
 
-	public HarryKart deserializeFromXML(String xmlString) throws HarryKartException {
+	public HarryKart convertFromXML(String xmlString) throws HarryKartException {
 		HarrykartUtils utils = new HarrykartUtils();
 		// Before de-serializing, check the XML validity
 		if (!utils.validateXml(xmlString)) {
 			throw new HarryKartException("The Harry Kart input XML is not in a valid format.");
 		}
 
-		HarryKart harryKartObj = null;
+		HarryKart objHarryKart = null;
 		try {
-			harryKartObj = xmlMapper.readValue(xmlString, HarryKart.class);
+			objHarryKart = xmlMapper.readValue(xmlString, HarryKart.class);
 			/*
 			 * After de-serializing the XML: 1) Verify that the number of loops matches the
 			 * specified value 2) Verify that there are at least two race participants
 			 */
-			if (!utils.validateNumberOfLoops(harryKartObj)) {
-				throw new HarryKartException(
-						"<numberOfLoops> value in the input XML does not match the number of loops provided");
+			if (!utils.validateNumberOfLoops(objHarryKart)) {
+				throw new HarryKartException("mismatch in <numberOfLoops> value and number of loops provided");
 			}
-			if (utils.numberOfParticipants(harryKartObj) < 2) {
-				throw new HarryKartException("Harry Kart race cannot have less than 2 participants");
+			if (utils.numberOfParticipants(objHarryKart) < 2) {
+				throw new HarryKartException("A race can't happen with only 1 participant");
 			}
 
 		} catch (IOException e) {
 			System.out.println("IOException while trying to de-serialize input XML");
 			System.out.println(e);
 		}
-		return harryKartObj;
+		return objHarryKart;
 	}
 
 	/**
@@ -70,17 +69,17 @@ public class HarryKartService {
 	 * @return List<Rank> List of participants ranked by their order of race
 	 *         completion
 	 */
-	public List<Rank> getResults() {
-		ArrayList<Rank> standings = new ArrayList<>();
+	public List<Rank> getRanking() {
+		ArrayList<Rank> rankingSequence = new ArrayList<>();
 
 		/*
 		 * For each participant 1) Go through each race loop 2) Get the lane where
 		 * lane.number = participant.lane 3) baseSpeed += lane.power. baseSpeed <= 0
 		 * means the lap is not run and the horse is out of the race. 4) time +=
-		 * TRACK_LENGTH / baseSpeed
+		 * DISTANCE / baseSpeed
 		 */
 		race.getStartList().forEach(participant -> {
-			Rank rank = new Rank(0, participant.getName(), TRACK_LENGTH / participant.getBaseSpeed());
+			Rank rank = new Rank(0, participant.getName(), DISTANCE / participant.getBaseSpeed());
 			race.getPowerUps().stream().forEach(loop -> loop.getLanes().stream()
 					.filter(lane -> lane.getNumber() == participant.getLane()).forEach(lane -> {
 						int loopSpeed = participant.getBaseSpeed() + lane.getPowerValue();
@@ -89,29 +88,30 @@ public class HarryKartService {
 																				// Horse is last place.
 						} else {
 							participant.setBaseSpeed(participant.getBaseSpeed() + lane.getPowerValue());
-							rank.setTime(rank.getTime() + (TRACK_LENGTH / participant.getBaseSpeed()));
+							rank.setTime(rank.getTime() + (DISTANCE / participant.getBaseSpeed()));
 						}
 					}));
-			standings.add(rank); // Add rank to collection
+			rankingSequence.add(rank); // Add rank to collection
 		});
 
-		Collections.sort(standings); // Sort with lowest times first
-		standings.removeIf(rank -> rank.getTime() >= Double.MAX_VALUE); // Remove participants who do not complete the
-																		// race
+		Collections.sort(rankingSequence); // Sort with lowest times first
+		rankingSequence.removeIf(rank -> rank.getTime() >= Double.MAX_VALUE); // Remove participants who do not complete
+																				// the
+		// race
 
 		// Each participant is given rank according to times.If they complete at same
 		// time,they have equal rank.
-		int finalPlacement = 1;
-		standings.get(0).setPosition(finalPlacement);
-		for (int positionIndex = 1; positionIndex < standings.size(); positionIndex++) {
-			if (standings.get(positionIndex).getTime() == standings.get(positionIndex - 1).getTime()) {
-				standings.get(positionIndex).setPosition(finalPlacement);
+		int finalPosition = 1;
+		rankingSequence.get(0).setPosition(finalPosition);
+		for (int indexPosition = 1; indexPosition < rankingSequence.size(); indexPosition++) {
+			if (rankingSequence.get(indexPosition).getTime() == rankingSequence.get(indexPosition - 1).getTime()) {
+				rankingSequence.get(indexPosition).setPosition(finalPosition);
 			} else {
-				standings.get(positionIndex).setPosition(++finalPlacement);
+				rankingSequence.get(indexPosition).setPosition(++finalPosition);
 			}
 		}
 		// Display first 3 positions only
-		return standings.stream().filter(rank -> rank.getPosition() <= 3).collect(toList());
+		return rankingSequence.stream().filter(rank -> rank.getPosition() <= 3).collect(toList());
 	}
 
 }

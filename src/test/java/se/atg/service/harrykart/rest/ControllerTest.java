@@ -33,7 +33,7 @@ public class ControllerTest {
 	@Test(expected = HarryKartException.class)
 	public void invalidXmlFormatTest() throws HarryKartException {
 		String inputXML = utils.readFileToString("NotAValidXMLFormat.xml");
-		HarryKart hk = service.deserializeFromXML(inputXML);
+		HarryKart hk = service.convertFromXML(inputXML);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class ControllerTest {
 	@Test(expected = HarryKartException.class)
 	public void minimumParticipantTest() throws HarryKartException {
 		String inputXML = utils.readFileToString("MinimumNumberOfParticipants.xml");
-		HarryKart hk = service.deserializeFromXML(inputXML);
+		HarryKart hk = service.convertFromXML(inputXML);
 	}
 
 	/**
@@ -56,9 +56,9 @@ public class ControllerTest {
 	@Test
 	public void NegativeandZeroPowerUps() throws HarryKartException {
 		String inputXML = utils.readFileToString("NegativeandZeroPowerUps.xml");
-		System.out.println("Input XML" + inputXML);
-		HarryKart hk = service.deserializeFromXML(inputXML);
-		List<Rank> actualRanking = new HarryKartService(hk).getResults();
+
+		HarryKart hk = service.convertFromXML(inputXML);
+		List<Rank> actualRanking = new HarryKartService(hk).getRanking();
 		// Expected race outcome
 		ArrayList<Rank> expectedRanking = new ArrayList<>();
 		expectedRanking.add(new Rank(1, "WAIKIKI SILVIO", 0.0));
@@ -91,8 +91,8 @@ public class ControllerTest {
 	public void testingTheGivenInput0() throws HarryKartException {
 		String inputXML = utils.readFileToString("input_0.xml");
 		System.out.println("Input XML" + inputXML);
-		HarryKart hk = service.deserializeFromXML(inputXML);
-		List<Rank> actualRanking = new HarryKartService(hk).getResults();
+		HarryKart hk = service.convertFromXML(inputXML);
+		List<Rank> actualRanking = new HarryKartService(hk).getRanking();
 		// Expected race outcome
 		ArrayList<Rank> expectedRanking = new ArrayList<>();
 		expectedRanking.add(new Rank(1, "TIMETOBELUCKY", 0.0));
@@ -113,8 +113,8 @@ public class ControllerTest {
 	public void testingTheGivenInput1() throws HarryKartException {
 		String inputXML = utils.readFileToString("input_1.xml");
 		System.out.println("Input XML" + inputXML);
-		HarryKart hk = service.deserializeFromXML(inputXML);
-		List<Rank> actualRanking = new HarryKartService(hk).getResults();
+		HarryKart hk = service.convertFromXML(inputXML);
+		List<Rank> actualRanking = new HarryKartService(hk).getRanking();
 		// Expected Output
 		ArrayList<Rank> expectedRanking = new ArrayList<>();
 		expectedRanking.add(new Rank(1, "WAIKIKI SILVIO", 0.0));
@@ -130,9 +130,9 @@ public class ControllerTest {
 	public void TieTest() throws HarryKartException {
 
 		String inputXML = utils.readFileToString("TieTest.xml");
-		HarryKart hk = service.deserializeFromXML(inputXML);
+		HarryKart hk = service.convertFromXML(inputXML);
 		// Calculate the race results
-		List<Rank> actualRanking = new HarryKartService(hk).getResults();
+		List<Rank> actualRanking = new HarryKartService(hk).getRanking();
 		// Verify that the finishing position of each participant is #1
 		actualRanking.forEach(rank -> assertEquals(rank.getPosition(), 1));
 	}
@@ -145,9 +145,9 @@ public class ControllerTest {
 	@Test
 	public void twoWayTieTest() throws HarryKartException {
 		String inputXML = utils.readFileToString("TieForTwoPositions.xml");
-		HarryKart hk = service.deserializeFromXML(inputXML);
+		HarryKart hk = service.convertFromXML(inputXML);
 		// Calculate the race results
-		List<Rank> actualRanking = new HarryKartService(hk).getResults();
+		List<Rank> actualRanking = new HarryKartService(hk).getRanking();
 		// Verify the finishing position of each participant
 		assertEquals(actualRanking.get(0).getPosition(), 1);
 		assertEquals(actualRanking.get(0).getHorse(), "WAIKIKI SILVIO");

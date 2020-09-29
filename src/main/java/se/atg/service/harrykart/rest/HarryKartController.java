@@ -31,9 +31,9 @@ public class HarryKartController {
 		try {
 
 			// Creating object from raw xml (Deserialization)
-			HarryKart hk = service.deserializeFromXML(inputXML);
+			HarryKart harrykart = service.convertFromXML(inputXML);
 			// Calculate the race results
-			List<Rank> ranking = new HarryKartService(hk).getResults();
+			List<Rank> ranking = new HarryKartService(harrykart).getRanking();
 			// building JSON response(Serialization)
 			return utils.convertToJson(ranking);
 		} catch (HarryKartException e) {

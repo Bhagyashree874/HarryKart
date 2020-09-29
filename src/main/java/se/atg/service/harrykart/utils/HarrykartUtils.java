@@ -33,14 +33,14 @@ public class HarrykartUtils {
 
 	public String convertToJson(List<Rank> ranking) {
 		ObjectMapper mapper = new ObjectMapper();
-		String jsonResults = "[]";
+		String jsonRankings = "[]";
 		try {
-			jsonResults = mapper.writeValueAsString(ranking);
+			jsonRankings = mapper.writeValueAsString(ranking);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return "{\"Processing Error From Json\": " + e.getMessage() + " }";
 		}
-		return "{\"ranking\": " + jsonResults + " }";
+		return "{\"ranking\": " + jsonRankings + " }";
 	}
 
 	private String getResource(String filename) throws FileNotFoundException {
@@ -56,26 +56,26 @@ public class HarrykartUtils {
 	public String readFileToString(String filename) {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream(filename);
 		Objects.requireNonNull(in);
-		String xmlString = "";
+		String inputXmlString = "";
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-			xmlString = br.lines().collect(Collectors.joining(System.lineSeparator()));
+			inputXmlString = br.lines().collect(Collectors.joining(System.lineSeparator()));
 		} catch (IOException e) {
 			e.printStackTrace();
-			return xmlString;
+			return inputXmlString;
 		}
-		return xmlString;
+		return inputXmlString;
 	}
 
 	public boolean validateNumberOfLoops(HarryKart hk) {
 		return hk.getNumberOfLoops() == hk.getPowerUps().size() + 1;
 	}
 
-	public boolean validateXml(String xmlString) {
+	public boolean validateXml(String inputXmlString) {
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		try {
 			Schema schema = schemaFactory.newSchema(new File(getResource(XSD_FILE)));
 			Validator validator = schema.newValidator();
-			validator.validate(new StreamSource(new StringReader(xmlString)));
+			validator.validate(new StreamSource(new StringReader(inputXmlString)));
 			return true;
 		} catch (SAXException | IOException e) {
 			return false;
